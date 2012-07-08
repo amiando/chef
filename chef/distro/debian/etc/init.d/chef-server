@@ -16,7 +16,7 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/bin/chef-server
-PIDFILE=/var/run/chef/server.%s.pid
+PIDFILE=/var/run/chef/server.$PORT.pid
 MAINPID=/var/run/chef/server.main.pid
 NAME=chef-server
 DESC=chef-server
@@ -32,25 +32,20 @@ if [ ! -d /var/run/chef ]; then
   chown $USER:$GROUP /var/run/chef
 fi
 
-DAEMON_OPTS="-p $PORT -e production -d -a $ADAPTER -P $PIDFILE -L $LOGFILE -C $CONFIG -u $USER -G $GROUP"
+DAEMON_OPTS="-p $PORT -e production -N -a $ADAPTER -P $PIDFILE -L $LOGFILE -C $CONFIG -u $USER -G $GROUP"
 
 running() {
-  [ ! -f  "$MAINPID" ] &&  return 1
-  pid=`cat $MAINPID`
-  [ -z "$pid" ] && return 1
-  [ ! -d /proc/$pid ] && return 1
-  (ps -fp $pid | egrep -q "merb.*(merb : master|worker.*$PORT)") || return 1
-  return 0
+  start-stop-daemon --status --quiet --pidfile $PIDFILE
+  return $?
 }
 
 start_server() {
-  $DAEMON $DAEMON_OPTS
-  errcode=$?
-  return $errcode
+  start-stop-daemon --start --background --quiet --pidfile $PIDFILE --chuid $USER --exec $DAEMON -- $DAEMON_OPTS
+  return $?
 }
 
 stop_server() {
-  $DAEMON -K all -P $PIDFILE
+  start-stop-daemon --stop --quiet --pidfile $PIDFILE
   errcode=$?
   return $errcode
 }
