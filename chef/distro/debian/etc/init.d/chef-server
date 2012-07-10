@@ -16,7 +16,6 @@
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=/usr/bin/chef-server
-PIDFILE=/var/run/chef/server.$PORT.pid
 MAINPID=/var/run/chef/server.main.pid
 NAME=chef-server
 DESC=chef-server
@@ -26,6 +25,7 @@ test -x $DAEMON || exit 0
 . /lib/lsb/init-functions
 
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
+PIDFILE=/var/run/chef/server.$PORT.pid
 
 if [ ! -d /var/run/chef ]; then
   mkdir /var/run/chef
