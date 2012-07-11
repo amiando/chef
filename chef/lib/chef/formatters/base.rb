@@ -23,12 +23,10 @@ require 'chef/formatters/error_descriptor'
 require 'chef/formatters/error_mapper'
 
 class Chef
-
   # == Chef::Formatters
   # Formatters handle printing output about the progress/status of a chef
   # client run to the user's screen.
   module Formatters
-
     class UnknownFormatter < StandardError; end
 
     def self.formatters_by_name
@@ -51,7 +49,7 @@ class Chef
     # TODO: is it too clever to be defining new() on a module like this?
     def self.new(name, out, err)
       formatter_class = by_name(name) or
-        raise UnknownFormatter, "No output formatter found for #{name} (available: #{available_formatters.join(', ')})"
+      raise UnknownFormatter, "No output formatter found for #{name} (available: #{available_formatters.join(', ')})"
 
       formatter_class.new(out, err)
     end
@@ -61,7 +59,6 @@ class Chef
     # --
     # TODO: Duplicates functionality from knife, upfactor.
     class Outputter
-
       def initialize(out, err)
         @out, @err = out, err
       end
@@ -93,13 +90,11 @@ class Chef
 
     end
 
-
     # == Formatters::Base
     # Base class that all formatters should inherit from.
     class Base < EventDispatch::Base
 
       include ErrorMapper
-
       def self.cli_name(name)
         Chef::Formatters.register(name, self)
       end
@@ -171,9 +166,8 @@ class Chef
       # exception when loaded. Default behavior is to use CompileErrorInspector
       # to print contextual info about the failure.
       def file_load_failed(path, exception)
-        error_inspector = ErrorInspectors::CompileErrorInspector.new(path, exception)
-        headline = "Error compiling #{path}"
-        describe_error(headline, error_inspector)
+        Chef::Log.error("Error compiling #{path}: #{exception}")
+        raise exception
       end
 
       # Delegates to #file_loaded
@@ -227,7 +221,6 @@ class Chef
       end
 
     end
-
 
     # == NullFormatter
     # Formatter that doesn't actually produce any ouput. You can use this to
